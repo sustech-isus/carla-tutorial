@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CarlaQuickGuide</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+</head>
+<body>
+  <nav>
+    <a href="#/en-us/">EN</a>
+    <a href="#/zh-cn/">中文</a>
+  </nav>
+  <div id="app"></div>
+  <!-- Setup app -->
+  <script>
+    window.$docsify = {
+      name: 'Carla Quick Guide',
+      repo: 'https://github.com/ZHAO-Zirui/CarlaQuickGuide/',
+      search : {
+        paths:[
+          '/',        // => /README.md
+          '/en-us/',  // => /en-us/README.md
+          '/zh-cn/'   // => /zh-cn/README.md
+        ],
+        maxAge: 6000,
+        placeholder: {
+        '/zh-cn/': '搜索',
+        '/': 'Type to search'
+        },
+        // Localization
+        noData: {
+          '/zh-cn/': '找不到结果',
+          '/': 'No Results'
+        },
+        depth: 3,
+        namespace: 'docs',
+        hideOtherSidebarContent: true,
+      },
+      copyCode: {
+        buttonText: {
+          '/zh-cn/': '复制代码',
+          '/'      : 'Copy to clipboard'
+        },
+        errorText: {
+          '/zh-cn/': '错误',
+          '/'      : 'Error'
+        },
+        successText: {
+          '/zh-cn/': '成功',
+          '/'      : 'Copied'
+        }
+      }
+    }
+  </script>
+  <!-- Docsify v4 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-php.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+  <style>
+    .docsify-copy-code-button {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        right: 0;
+        overflow: visible;
+        padding: 0.65em 0.8em;
+        border: 0;
+        border-radius: 0;
+        outline: 0;
+        font-size: 0.7em;
+        background: #808080;
+        background: var(--theme-color, #808080);
+        color: #fff;
+        opacity: 0;
+    }
+  </style>
+</body>
+</html>
