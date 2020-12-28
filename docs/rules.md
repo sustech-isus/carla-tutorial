@@ -31,20 +31,33 @@ The following rules apply to the use of notice and warnings. Please pay attentio
 对提示与警告的使用做出如下规定，请在编写文档时注意。
 
 > [!NOTE]
->
-> **TODO**： Note定义
+> 
+> 该级别用于提供**文档内容的说明**或**外部链接的引用**
+> 
+> *举例：简短说明CARAL额外下载的资产包括什么内容*
+<!-- > **TODO**： Note定义 -->
+
 
 > [!TIP]
+> 
+> 该级别用于提供**最佳实践**或**最佳实践的引用**
 >
-> **TODO**： Tip定义
+> *举例：最佳的CARAL版本管理方式*
+> 
+<!-- > **TODO**： Tip定义 -->
 
 > [!WARNING]
->
-> **TODO**： Warning定义
+> 
+> 该级别用于警示可能**引发应用程序使用问题**的操作
+> 
+> *举例：在zsh中引用了setup.bash*
+<!-- > **TODO**： Warning定义 -->
 
 > [!ATTENTION]
->
-> **TODO**: Attention定义
+> 
+> 该级别用于警示一定会**引发严重问题**或**系统环境错误**的操作
+> 
+> *举例：对操作系统Python版本的操作*
 
 ## Push and Release | 上传与发布
 This document is automatically published using The Github Pages. Pushing to the Github repository is equivalent to publishing the new version.
