@@ -1,5 +1,5 @@
 
-# Introduction | 介绍
+# Introduction | 项目简介
 This is a project at HAO's lab, SUSTech, to create a quick guide about how to use CARLA.
 It inculdes:
 * CARLA quick installization and configuration
