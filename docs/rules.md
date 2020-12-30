@@ -1,9 +1,7 @@
-# Edit Rules ｜ 编写规范
-This section includes constraints on the documentation specification.
-
+#  编写规范
 本部分包括了对文档编写规范的约束。
 
-## Structure | 文件结构
+## 文件结构
 
 ```
 carla-tutorial
@@ -21,12 +19,9 @@ carla-tutorial
 
 > [!ATTENTION]
 >
-> Do not modify the file structure or `index.html`, which will result in a publish page exception.
->
 >不要修改文件结构与`index.html`，这将会导致发布页面异常
 
-## Notice and Warning | 提示与警告
-The following rules apply to the use of notice and warnings. Please pay attention to them when writing documents.
+## 提示与警告
 
 对提示与警告的使用做出如下规定，请在编写文档时注意。
 
@@ -54,12 +49,10 @@ The following rules apply to the use of notice and warnings. Please pay attentio
 > 
 > *举例： 对操作系统Python版本的操作*
 
-### Usage Warning ｜ 使用警示
-When using the prompt box, the colon (both in Chinese and English) must be followed by a space, otherwise the entire prompt box will be lost during rendering.
+### 使用警示
 
 在使用提示框时，冒号（不论中英文）必须后跟空格，否则会在渲染时丢失整个提示框。
 
-## Push and Release | 上传与发布
-This document is automatically published using The Github Pages. Pushing to the Github repository is equivalent to publishing the new version.
+## 上传与发布
 
 本文档使用Github Pages进行自动发布，对Github储存仓库的上传等同于新版本的发布。
