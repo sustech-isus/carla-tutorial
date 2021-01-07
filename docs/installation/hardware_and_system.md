@@ -17,9 +17,9 @@ CARLA由于处理管线优化问题的存在，对计算机硬件性能有苛刻
 
 |   类别    |   名称  |
 |  ----     | ----  |
-|   CPU     | Intel或AMD 4核 |
-|   RAM     | DDR4 8GB |
-|   GPU     | GTX970 |
+|   CPU     | i5-9400 |
+|   RAM     | DDR4 16GB |
+|   GPU     | GTX1660s |
 
 > [!ATTENTION]
 > CPU需要保证最低四个物理核心， 非逻辑核心
@@ -35,9 +35,9 @@ CARLA由于处理管线优化问题的存在，对计算机硬件性能有苛刻
 
 |   类别    |   名称  |
 |  ----     | ----  |
-|   CPU     | i7-8700 |
-|   RAM     | DDR4 8GB |
-|   GPU     | GTX1070 |
+|   CPU     | i7-9700 |
+|   RAM     | DDR4 16GB |
+|   GPU     | GTX2070 |
 
 > [!WARNING]
 > 该配置未经过严格的实际测试
