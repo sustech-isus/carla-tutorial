@@ -7,16 +7,16 @@
   * [ROS](/knowledge/ros.md)
   * [Docker](/knowledge/docker.md)
   * [CARLA ROS Bridge](/knowledge/carla_ros_bridge.md)
+* **快速指引**
+  * [采集仿真数据集](/quick_guide/dataset_collection.md)
+  * [运行实时感知算法](/quick_guide/realtime_decision_algorithm.md)
+  * [运行实时决策算法](/quick_guide/realtime_perception_algorithm.md)
 * **安装配置**
   * [硬件与系统](/installation/hardware_and_system.md)
   * [软件环境](/installation/software_environment.md)
   * [CARLA的安装](/installation/carla.md)
   * [ROS的安装](/installation/ros.md)
   * [CARLA ROS Bridge的安装](/installation/carla_ros_bridge.md)
-* **快速指引**
-  * [采集仿真数据集](/quick_guide/dataset_collection.md)
-  * [运行实时感知算法](/quick_guide/realtime_decision_algorithm.md)
-  * [运行实时决策算法](/quick_guide/realtime_perception_algorithm.md)
 * **使用CARLA PythonAPI**
   * [仿真环境配置](/carla_python_api/environment.md)
   * [车辆控制](/carla_python_api/control.md)
