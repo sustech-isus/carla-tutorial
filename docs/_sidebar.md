@@ -29,3 +29,5 @@
 * **示例工程**
   * [Costmap](/demo/costmap.md)
   * [激光雷达SLAM](/demo/lidar_slam.md)
+* **参考文档**
+  * [传感器参数参考](/reference/sensor_reference.md)
