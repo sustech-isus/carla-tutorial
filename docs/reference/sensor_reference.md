@@ -25,9 +25,6 @@ RGB相机的作用是作为普通摄像机捕捉场景中的RGB图像。
 
 #### 相机基本参数
 
-
-<br>
-
 | 参数名称 | 参数类型     | 默认值  | 参数描述          |
 | ----------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- |
 |`id`|string|rgb_camera|传感器ID, 用于区分多路传感器  |
@@ -40,178 +37,71 @@ RGB相机的作用是作为普通摄像机捕捉场景中的RGB图像。
 
 ## 深度相机
 
-* __Blueprint:__ sensor.camera.depth
-* __Output:__ [carla.Image](python_api.md#carla.Image) per step (unless `sensor_tick` says otherwise).
+| 输出Topic |输出消息类型|
+|---|---|
+|/carla/{role_name}/{sensor_id}/image | sensor_msgs/Image |
+|/carla/{role_name}/{sensor_id}/camera_info | sensor_msgs/CameraInfo |
 
-The camera provides a raw data of the scene codifying the distance of each pixel to the camera (also known as **depth buffer** or **z-buffer**) to create a depth map of the elements.
+深度相机可以将场景中的距离信息编码为像素生成深度图像。
 
-The image codifies depth value per pixel using 3 channels of the RGB color space, from less to more significant bytes: _R -> G -> B_. The actual distance in meters can be
-decoded with:
+在ROS-Bridge中，深度图已经被转换为单通道float32的图像，每个像素值即为实际距离(米)。
 
-```
-normalized = (R + G * 256 + B * 256 * 256) / (256 * 256 * 256 - 1)
-in_meters = 1000 * normalized
-```
+#### 相机基本参数
 
-The output [carla.Image](python_api.md#carla.Image) should then be saved to disk using a [carla.colorConverter](python_api.md#carla.ColorConverter) that will turn the distance stored in RGB channels into a __[0,1]__ float containing the distance and then translate this to grayscale.
-There are two options in [carla.colorConverter](python_api.md#carla.ColorConverter) to get a depth view: __Depth__ and __Logaritmic depth__. The precision is milimetric in both, but the logarithmic approach provides better results for closer objects.
-
-```py
-...
-raw_image.save_to_disk("path/to/save/converted/image",carla.Depth)
-```
-
-
-![ImageDepth](img/ref_sensors_depth.jpg)
-
-
-#### Basic camera attributes
-
-
-| Blueprint attribute       | Type    | Default | Description   |
+| 参数名称 | 参数类型     | 默认值  | 参数描述          |
 | ----------------------------- | ----------------------------- | ----------------------------- | ----------------------------- |
-| `image_size_x`            | int     | 800     | Image width in pixels.      |
-| `image_size_y`            | int     | 600     | Image height in pixels.     |
-| `fov`   | float   | 90\.0   | Horizontal field of view in degrees.    |
-| `sensor_tick` | float   | 0\.0    | Simulation seconds between sensor captures (ticks). |
-
-
-
-#### Camera lens distortion attributes
-
-
-| Blueprint attribute      | Type         | Default      | Description  |
-| ------------------------- | ------------------------- | ------------------------- | ------------------------- |
-| `lens_circle_falloff`    | float        | 5\.0         | Range: [0.0, 10.0]       |
-| `lens_circle_multiplier` | float        | 0\.0         | Range: [0.0, 10.0]       |
-| `lens_k`     | float        | \-1.0        | Range: [-inf, inf]       |
-| `lens_kcube` | float        | 0\.0         | Range: [-inf, inf]       |
-| `lens_x_size`            | float        | 0\.08        | Range: [0.0, 1.0]        |
-| `lens_y_size`            | float        | 0\.08        | Range: [0.0, 1.0]        |
-
-
-#### Output attributes
-
-
-| Sensor data attribute            | Type  | Description        |
-| ----------------------- | ----------------------- | ----------------------- |
-| `frame`            | int   | Frame number when the measurement took place.      |
-| `timestamp`        | double | Simulation time of the measurement in seconds since the beginning of the episode.        |
-| `transform`        | [carla.Transform](<../python_api#carlatransform>)  | Location and rotation in world coordinates of the sensor at the time of the measurement. |
-| `width`            | int   | Image width in pixels.           |
-| `height`           | int   | Image height in pixels.          |
-| `fov` | float | Horizontal field of view in degrees.         |
-| `raw_data`         | bytes | Array of BGRA 32-bit pixels.     |
-
-
+|`id`|string|rgb_camera|传感器ID, 用于区分多路传感器  |
+| `fov`    | float    | 90\.0    | 水平视场角 (单位: 度) |
+| `image_size_x`       | int      | 800      | 图像宽度 (像素) |
+| `image_size_y`       | int      | 600      | 图像高度 (像素) |
+| `sensor_tick`        | float    | 0\.0     | 传感器数据间的仿真时间 (ticks).  |
 
 ---
 ## GNSS sensor
 
-* __Blueprint:__ sensor.other.gnss
-* __Output:__ [carla.GNSSMeasurement](python_api.md#carla.GnssMeasurement) per step (unless `sensor_tick` says otherwise).
+| 输出Topic |输出消息类型|
+|---|---|
+|/carla/{role_name}/gnss | sensor_msgs/NavSatFix |
 
-Reports current [gnss position](https://www.gsa.europa.eu/european-gnss/what-gnss) of its parent object. This is calculated by adding the metric position to an initial geo reference location defined within the OpenDRIVE map definition.
+反馈父对象当前的 gnss 位置。这是通过在OpenDRIVE地图的定义，结合仿真器参考位置来计算的。
 
-#### GNSS attributes
+#### GNSS参数
 
 
-| Blueprint attribute      | Type   | Default            | Description        |
+| 参数名称 | 参数类型     | 默认值  | 参数描述          |
 | ------------------- | ------------------- | ------------------- | ------------------- |
-| `noise_alt_bias`   | float  | 0\.0   | Mean parameter in the noise model for altitude.    |
-| `noise_alt_stddev` | float  | 0\.0   | Standard deviation parameter in the noise model for altitude.  |
-| `noise_lat_bias`   | float  | 0\.0   | Mean parameter in the noise model for latitude.    |
-| `noise_lat_stddev` | float  | 0\.0   | Standard deviation parameter in the noise model for latitude.  |
-| `noise_lon_bias`   | float  | 0\.0   | Mean parameter in the noise model for longitude.   |
-| `noise_lon_stddev` | float  | 0\.0   | Standard deviation parameter in the noise model for longitude. |
-| `noise_seed`       | int    | 0      | Initializer for a pseudorandom number generator.   |
-| `sensor_tick`      | float  | 0\.0   | Simulation seconds between sensor captures (ticks).            |
-
-<br>
-
-#### Output attributes
-
-
-| Sensor data attribute            | Type  | Description        |
-| ----------------------- | ----------------------- | ----------------------- |
-| `frame`            | int   | Frame number when the measurement took place.      |
-| `timestamp`        | double | Simulation time of the measurement in seconds since the beginning of the episode.        |
-| `transform`        | [carla.Transform](<../python_api#carlatransform>)  | Location and rotation in world coordinates of the sensor at the time of the measurement. |
-| `latitude`         | double | Latitude of the actor.           |
-| `longitude`        | double | Longitude of the actor.          |
-| `altitude`         | double | Altitude of the actor.           |
-
-
+| `noise_alt_bias`   | float  | 0\.0   | 海拔高度的噪声模型中的均值    |
+| `noise_alt_stddev` | float  | 0\.0   | 海拔高度的噪声模型中的标准差 |
+| `noise_lat_bias`   | float  | 0\.0   | 纬度噪声模型的均值 |
+| `noise_lat_stddev` | float  | 0\.0   | 纬度噪声模型的标准差  |
+| `noise_lon_bias`   | float  | 0\.0   | 经度噪声模型的均值   |
+| `noise_lon_stddev` | float  | 0\.0   | 经度噪声模型的标准差 |
+| `sensor_tick`      | float  | 0\.0   | 传感器数据间的仿真时间 (ticks).  |
 
 ---
 ## IMU sensor
 
-* __Blueprint:__ sensor.other.imu
-* __Output:__ [carla.IMUMeasurement](python_api.md#carla.IMUMeasurement) per step (unless `sensor_tick` says otherwise).
+| 输出Topic |输出消息类型|
+|---|---|
+|/carla/{role_name}/imu| sensor_msgs/Imu |
 
-Provides measures that accelerometer, gyroscope and compass would retrieve for the parent object. The data is collected from the object's current state.
+提供父对象的加速度计、陀螺仪、磁力计的传感器测量值。 数据由对象当前状态采集获得。
 
-#### IMU attributes
+#### IMU参数
 
 
-| Blueprint attribute | Type    | Default             | Description         |
+| 参数名称 | 参数类型     | 默认值  | 参数描述          |
 | -------------------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
-| `noise_accel_stddev_x`          | float   | 0\.0    | Standard deviation parameter in the noise model for acceleration (X axis).  |
-| `noise_accel_stddev_y`          | float   | 0\.0    | Standard deviation parameter in the noise model for acceleration (Y axis).  |
-| `noise_accel_stddev_z`          | float   | 0\.0    | Standard deviation parameter in the noise model for acceleration (Z axis).  |
-| `noise_gyro_bias_x` | float   | 0\.0    | Mean parameter in the noise model for the gyroscope (X axis).   |
-| `noise_gyro_bias_y` | float   | 0\.0    | Mean parameter in the noise model for the gyroscope (Y axis).   |
-| `noise_gyro_bias_z` | float   | 0\.0    | Mean parameter in the noise model for the gyroscope (Z axis).   |
-| `noise_gyro_stddev_x`           | float   | 0\.0    | Standard deviation parameter in the noise model for the gyroscope (X axis). |
-| `noise_gyro_stddev_y`           | float   | 0\.0    | Standard deviation parameter in the noise model for the gyroscope (Y axis). |
-| `noise_gyro_stddev_z`           | float   | 0\.0    | Standard deviation parameter in the noise model for the gyroscope (Z axis). |
-| `noise_seed`        | int     | 0       | Initializer for a pseudorandom number generator.    |
-| `sensor_tick`       | float   | 0\.0    | Simulation seconds between sensor captures (ticks).             |
-
-<br>
-
-#### Output attributes
-
-| Sensor data attribute            | Type  | Description        |
-| ----------------------- | ----------------------- | ----------------------- |
-| `frame`            | int   | Frame number when the measurement took place.      |
-| `timestamp`        | double | Simulation time of the measurement in seconds since the beginning of the episode.        |
-| `transform`        | [carla.Transform](<../python_api#carlatransform>)  | Location and rotation in world coordinates of the sensor at the time of the measurement. |
-| `accelerometer`      | [carla.Vector3D](<../python_api#carlavector3d>)    | Measures linear acceleration in `m/s^2`.     |
-| `gyroscope`        | [carla.Vector3D](<../python_api#carlavector3d>)    | Measures angular velocity in `rad/sec`.      |
-| `compass`          | float | Orientation in radians. North is `(0.0, -1.0, 0.0)` in UE.       |
-
-
-
----
-## Lane invasion detector
-
-* __Blueprint:__ sensor.other.lane_invasion
-* __Output:__ [carla.LaneInvasionEvent](python_api.md#carla.LaneInvasionEvent) per crossing.
-
-Registers an event each time its parent crosses a lane marking.
-The sensor uses road data provided by the OpenDRIVE description of the map to determine whether the parent vehicle is invading another lane by considering the space between wheels.
-However there are some things to be taken into consideration:
-
-* Discrepancies between the OpenDRIVE file and the map will create irregularities such as crossing lanes that are not visible in the map.
-* The output retrieves a list of crossed lane markings: the computation is done in OpenDRIVE and considering the whole space between the four wheels as a whole. Thus, there may be more than one lane being crossed at the same time.
-
-This sensor does not have any configurable attribute.
-
-!!! Important
-    This sensor works fully on the client-side.
-
-#### Output attributes
-
-| Sensor data attribute            | Type  | Description        |
-| ----------------------- | ----------------------- | ----------------------- |
-| `frame`            | int   | Frame number when the measurement took place.      |
-| `timestamp`        | double | Simulation time of the measurement in seconds since the beginning of the episode.        |
-| `transform`        | [carla.Transform](<../python_api#carlatransform>)  | Location and rotation in world coordinates of the sensor at the time of the measurement. |
-| `actor`            | [carla.Actor](<../python_api#carlaactor>)    | Vehicle that invaded another lane (parent actor).  |
-| `crossed_lane_markings`          | list([carla.LaneMarking](<../python_api#carlalanemarking>))      | List of lane markings that have been crossed.      |
-
-
+| `noise_accel_stddev_x`          | float   | 0\.0    | 加速度计噪声模型标准差 (X轴)  |
+| `noise_accel_stddev_y`          | float   | 0\.0    | 加速度计噪声模型标准差 (Y轴)   |
+| `noise_accel_stddev_z`          | float   | 0\.0    | 加速度计噪声模型标准差 (Z轴)  |
+| `noise_gyro_bias_x` | float   | 0\.0    | 陀螺仪噪声模型均值 (X 轴).   |
+| `noise_gyro_bias_y` | float   | 0\.0    | 陀螺仪噪声模型均值 (Y 轴).   |
+| `noise_gyro_bias_z` | float   | 0\.0    | 陀螺仪噪声模型均值 (Z 轴).   |
+| `noise_gyro_stddev_x`           | float   | 0\.0    | 陀螺仪噪声模型标准差 (X 轴). |
+| `noise_gyro_stddev_y`           | float   | 0\.0    | 陀螺仪噪声模型标准差 (Y 轴). |
+| `noise_gyro_stddev_z`           | float   | 0\.0    | 陀螺仪噪声模型标准差 (Z 轴). |
+| `sensor_tick`      | float  | 0\.0   | 传感器数据间的仿真时间 (ticks).  |
 
 ---
 ## LIDAR sensor
@@ -286,41 +176,6 @@ The rotation of the LIDAR can be tuned to cover a specific angle on every simula
 
 <br>
 
-## Obstacle detector
-
-* __Blueprint:__ sensor.other.obstacle
-* __Output:__ [carla.ObstacleDetectionEvent](python_api.md#carla.ObstacleDetectionEvent) per obstacle (unless `sensor_tick` says otherwise).
-
-Registers an event every time the parent actor has an obstacle ahead.
-In order to anticipate obstacles, the sensor creates a capsular shape ahead of the parent vehicle and uses it to check for collisions.
-To ensure that collisions with any kind of object are detected, the server creates "fake" actors for elements such as buildings or bushes so the semantic tag can be retrieved to identify it.
-
-
-| Blueprint attribute          | Type       | Default    | Description      |
-| -------------------------------- | -------------------------------- | -------------------------------- | -------------------------------- |
-| `distance` | float      | 5          | Distance to trace.           |
-| `hit_radius`     | float      | 0\.5       | Radius of the trace.         |
-| `only_dynamics`  | bool       | False      | If true, the trace will only consider dynamic objects. |
-| `debug_linetrace` | bool       | False      | If true, the trace will be visible.        |
-| `sensor_tick`    | float      | 0\.0       | Simulation seconds between sensor captures (ticks).    |
-
-<br>
-
-#### Output attributes
-
-| Sensor data attribute            | Type  | Description        |
-| ----------------------- | ----------------------- | ----------------------- |
-| `frame`            | int   | Frame number when the measurement took place.      |
-| `timestamp`        | double | Simulation time of the measurement in seconds since the beginning of the episode.        |
-| `transform`        | [carla.Transform](<../python_api#carlatransform>)  | Location and rotation in world coordinates of the sensor at the time of the measurement. |
-| `actor`            | [carla.Actor](<../python_api#carlaactor>)    | Actor that detected the obstacle (parent actor).   |
-| `other_actor`      | [carla.Actor](<../python_api#carlaactor>)    | Actor detected as an obstacle.   |
-| `distance`         | float | Distance from `actor` to `other_actor`.      |
-
-
-
-<br>
-
 ## Radar sensor
 
 * __Blueprint:__ sensor.other.radar
@@ -381,196 +236,6 @@ The provided script `manual_control.py` uses this sensor to show the points bein
 | `lens_kcube` | float        | 0\.0         | Range: [-inf, inf]       |
 | `lens_x_size`            | float        | 0\.08        | Range: [0.0, 1.0]        |
 | `lens_y_size`            | float        | 0\.08        | Range: [0.0, 1.0]        |
-
-
-
-#### Advanced camera attributes
-
-Since these effects are provided by UE, please make sure to check their documentation:
-
-  * [Automatic Exposure][AutomaticExposure.Docs]
-  * [Cinematic Depth of Field Method][CinematicDOFMethod.Docs]
-  * [Color Grading and Filmic Tonemapper][ColorGrading.Docs]
-
-[AutomaticExposure.Docs]: https://docs.unrealengine.com/en-US/Engine/Rendering/PostProcessEffects/AutomaticExposure/index.html
-[CinematicDOFMethod.Docs]: https://docs.unrealengine.com/en-US/Engine/Rendering/PostProcessEffects/DepthOfField/CinematicDOFMethods/index.html
-[ColorGrading.Docs]: https://docs.unrealengine.com/en-US/Engine/Rendering/PostProcessEffects/ColorGrading/index.html
-
-| Blueprint attribute  | Type           | Default        | Description    |
-| ------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------- |
-| `min_fstop`    | float          | 1\.2           | Maximum aperture.    |
-| `blade_count`  | int            | 5  | Number of blades that make up the diaphragm mechanism.     |
-| `exposure_mode`      | str            | `histogram`    | Can be `manual` or `histogram`. More in [UE4 docs](<https://docs.unrealengine.com/en-US/Engine/Rendering/PostProcessEffects/AutomaticExposure/index.html>).  |
-| `exposure_compensation`          | float          | **Linux:** \-1.5<br>**Windows:** 0\.0        | Logarithmic adjustment for the exposure. 0: no adjustment, -1:2x darker, -2:4 darker, 1:2x brighter, 2:4x brighter.   |
-| `exposure_min_bright`            | float          | 7\.0           | In `exposure_mode: "histogram"`. Minimum brightness for auto exposure. The lowest the eye can adapt within. Must be greater than 0 and less than or equal to `exposure_max_bright`.  |
-| `exposure_max_bright`            | float          | 9\.0           | In \`exposure\_mode: "histogram"\`. Maximum brightness for auto exposure. The highestthe eye can adapt within. Must be greater than 0 and greater than or equal to \`exposure\_min\_bright\`.          |
-| `exposure_speed_up`  | float          | 3\.0           | In `exposure_mode: "histogram"`. Speed at which the adaptation occurs from dark to bright environment.  |
-| `exposure_speed_down`            | float          | 1\.0           | In `exposure_mode: "histogram"`. Speed at which the adaptation occurs from bright to dark environment.  |
-| `calibration_constant`           | float          | 16\.0          | Calibration constant for 18% albedo.           |
-| `focal_distance`     | float          | 1000\.0        | Distance at which the depth of field effect should be sharp. Measured in cm (UE units).           |
-| `blur_amount`  | float          | 1\.0           | Strength/intensity of motion blur.             |
-| `blur_radius`  | float          | 0\.0           | Radius in pixels at 1080p resolution to emulate atmospheric scattering according to distance from camera.           |
-| `motion_blur_intensity`          | float          | 0\.45          | Strength of motion blur [0,1].     |
-| `motion_blur_max_distortion`       | float          | 0\.35          | Max distortion caused by motion blur. Percentage of screen width.       |
-| `motion_blur_min_object_screen_size`           | float          | 0\.1           | Percentage of screen width objects must have for motion blur, lower value means less draw calls.  |
-| `slope`        | float          | 0\.88          | Steepness of the S-curve for the tonemapper. Larger values make the slope steeper (darker) [0.0, 1.0].  |
-| `toe`          | float          | 0\.55          | Adjusts dark color in the tonemapper [0.0, 1.0].           |
-| `shoulder`     | float          | 0\.26          | Adjusts bright color in the tonemapper [0.0, 1.0].         |
-| `black_clip`   | float          | 0\.0           | This should NOT be adjusted. Sets where the crossover happens and black tones start to cut off their value [0.0, 1.0].            |
-| `white_clip`   | float          | 0\.04          | Set where the crossover happens and white tones start to cut off their value. Subtle change in most cases [0.0, 1.0].             |
-| `temp`         | float          | 6500\.0        | White balance in relation to the temperature of the light in the scene. **White light:** when this matches light temperature. **Warm light:** When higher than the light in the scene, it is a yellowish color. **Cool light:** When lower than the light. Blueish color.     |
-| `tint`         | float          | 0\.0           | White balance temperature tint. Adjusts cyan and magenta color ranges. This should be used along with the white balance Temp property to get accurate colors. Under some light temperatures, the colors may appear to be more yellow or blue. This can be used to balance the resulting color to look more natural. |
-| `chromatic_aberration_intensity`   | float          | 0\.0           | Scaling factor to control color shifting, more noticeable on the screen borders.      |
-| `chromatic_aberration_offset`      | float          | 0\.0           | Normalized distance to the center of the image where the effect takes place.          |
-| `enable_postprocess_effects`       | bool           | True           | Post-process effects activation.   |
-
-<br>
-
-[AutomaticExposure.gamesetting]: https://docs.unrealengine.com/en-US/Engine/Rendering/PostProcessEffects/AutomaticExposure/index.html#gamesetting
-
-#### Output attributes
-
-| Sensor data attribute            | Type  | Description        |
-| ----------------------- | ----------------------- | ----------------------- |
-| `frame`            | int   | Frame number when the measurement took place.      |
-| `timestamp`        | double | Simulation time of the measurement in seconds since the beginning of the episode.        |
-| `transform`        | [carla.Transform](<../python_api#carlatransform>)  | Location and rotation in world coordinates of the sensor at the time of the measurement. |
-| `width`            | int   | Image width in pixels.           |
-| `height`           | int   | Image height in pixels.          |
-| `fov` | float | Horizontal field of view in degrees.         |
-| `raw_data`         | bytes | Array of BGRA 32-bit pixels.     |
-
-
-
----
-## RSS sensor
-
-*   __Blueprint:__ sensor.other.rss
-*   __Output:__ [carla.RssResponse](python_api.md#carla.RssResponse) per step (unless `sensor_tick` says otherwise).
-
-!!! Important
-    It is highly recommended to read the specific [rss documentation](adv_rss.md) before reading this.
-
-This sensor integrates the [C++ Library for Responsibility Sensitive Safety](https://github.com/intel/ad-rss-lib) in CARLA. It is disabled by default in CARLA, and it has to be explicitly built in order to be used.
-
-The RSS sensor calculates the RSS state of a vehicle and retrieves the current RSS Response as sensor data. The [carla.RssRestrictor](python_api.md#carla.RssRestrictor) will use this data to adapt a [carla.VehicleControl](python_api.md#carla.VehicleControl) before applying it to a vehicle.
-
-These controllers can be generated by an *Automated Driving* stack or user input. For instance, hereunder there is a fragment of code from `PythonAPI/examples/rss/manual_control_rss.py`, where the user input is modified using RSS when necessary.
-
-__1.__ Checks if the __RssSensor__ generates a valid response containing restrictions.
-__2.__ Gathers the current dynamics of the vehicle and the vehicle physics.
-__3.__ Applies restrictions to the vehicle control using the response from the RssSensor, and the current dynamics and physicis of the vehicle.
-
-```py
-rss_proper_response = self._world.rss_sensor.proper_response if self._world.rss_sensor and self._world.rss_sensor.response_valid else None
-if rss_proper_response:
-...
-        vehicle_control = self._restrictor.restrict_vehicle_control(
-            vehicle_control, rss_proper_response, self._world.rss_sensor.ego_dynamics_on_route, self._vehicle_physics)
-```
-
-
-#### The carla.RssSensor class
-
-The blueprint for this sensor has no modifiable attributes. However, the [carla.RssSensor](python_api.md#carla.RssSensor) object that it instantiates has attributes and methods that are detailed in the Python API reference. Here is a summary of them.
-
-| [carla.RssSensor variables](<../python_api#carlarsssensor>)     | Type    | Description         |
-| ---------------------------------------- | ---------------------------------------- | ---------------------------------------- |
-| `ego_vehicle_dynamics`    | [ad.rss.world.RssDynamics](<https://intel.github.io/ad-rss-lib/ad_rss/Appendix-ParameterDiscussion/>)  | RSS parameters to be applied for the ego vehicle    |
-| `other_vehicle_dynamics`  | [ad.rss.world.RssDynamics](<https://intel.github.io/ad-rss-lib/ad_rss/Appendix-ParameterDiscussion/>)  | RSS parameters to be applied for the other vehicles |
-| `pedestrian_dynamics`     | [ad.rss.world.RssDynamics](<https://intel.github.io/ad-rss-lib/ad_rss/Appendix-ParameterDiscussion/>)  | RSS parameters to be applied for pedestrians        |
-| `road_boundaries_mode`    | [carla.RssRoadBoundariesMode](<../python_api#carlarssroadboundariesmode>)      | Enables/Disables the [stay on road](<https://intel.github.io/ad-rss-lib/ad_rss_map_integration/HandleRoadBoundaries>) feature. Default is **Off**. |
-
-<br>
-
-
-```py
-# Fragment of rss_sensor.py
-# The carla.RssSensor is updated when listening for a new carla.RssResponse
-def _on_rss_response(weak_self, response):
-...
-        self.timestamp = response.timestamp
-        self.response_valid = response.response_valid
-        self.proper_response = response.proper_response
-        self.ego_dynamics_on_route = response.ego_dynamics_on_route
-        self.rss_state_snapshot = response.rss_state_snapshot
-        self.situation_snapshot = response.situation_snapshot
-        self.world_model = response.world_model
-```
-
-!!! Warning
-    This sensor works fully on the client side. There is no blueprint in the server. Changes on the attributes will have effect __after__ the *listen()* has been called.
-
-The methods available in this class are related to the routing of the vehicle. RSS calculations are always based on a route of the ego vehicle through the road network.
-
-The sensor allows to control the considered route by providing some key points, which could be the [carla.Transform](python_api.md#carla.Transform) in a [carla.Waypoint](python_api.md#carla.Waypoint). These points are best selected after the intersections to force the route to take the desired turn.
-
-| [carla.RssSensor methods](<../python_api#carlarsssensor>)     | Description       |
-| ----------------------------------------- | ----------------------------------------- |
-| `routing_targets` | Get the current list of routing targets used for route.       |
-| `append_routing_target` | Append an additional position to the current routing targets. |
-| `reset_routing_targets` | Deletes the appended routing targets.             |
-| `drop_route`      | Discards the current route and creates a new one. |
-| `register_actor_constellation_callback`           | Register a callback to customize the calculations.            |
-| `set_log_level`   | Sets the log level.     |
-| `set_map_log_level`     | Sets the log level used for map related logs.     |
-
-
-
-<br>
-
----
-
-
-```py
-# Update the current route
-self.sensor.reset_routing_targets()
-if routing_targets:
-    for target in routing_targets:
-        self.sensor.append_routing_target(target)
-```
-
-!!! Note
-    If no routing targets are defined, a random route is created.
-
-#### Output attributes
-
-| [carla.RssResponse attributes](<../python_api#carlarssresponse>)           | Type  | Description       |
-| ------------------------------------- | ------------------------------------- | ------------------------------------- |
-| `response_valid`  | bool  | Validity of the response data.      |
-| `proper_response` | [ad.rss.state.ProperResponse](<https://intel.github.io/ad-rss-lib/doxygen/ad_rss/structad_1_1rss_1_1state_1_1ProperResponse.html>)   | Proper response that the RSS calculated for the vehicle including acceleration restrictions.         |
-| `rss_state_snapshot`    | [ad.rss.state.RssStateSnapshot](<https://intel.github.io/ad-rss-lib/doxygen/ad_rss/structad_1_1rss_1_1state_1_1RssStateSnapshot.html>)           | RSS states at the current point in time. This is the detailed individual output of the RSS calclulations.  |
-| `situation_snapshot`    | [ad.rss.situation.SituationSnapshot](<https://intel.github.io/ad-rss-lib/doxygen/ad_rss/structad_1_1rss_1_1situation_1_1SituationSnapshot.html>) | RSS situation at the current point in time. This is the processed input data for the RSS calclulations.    |
-| `world_model`     | [ad.rss.world.WorldModel](<https://intel.github.io/ad-rss-lib/doxygen/ad_rss/structad_1_1rss_1_1world_1_1WorldModel.html>)           | RSS world model at the current point in time. This is the input data for the RSS calculations.       |
-| `ego_dynamics_on_route` | [carla.RssEgoDynamicsOnRoute](<../python_api#carlarssegodynamicsonroute>)    | Current ego vehicle dynamics regarding the route. |
-
-
-In case a actor_constellation_callback is registered, a call is triggered for:
-
-1. default calculation (`actor_constellation_data.other_actor=None`)
-2. per-actor calculation
-
-```py
-# Fragment of rss_sensor.py
-# The function is registered as actor_constellation_callback
-def _on_actor_constellation_request(self, actor_constellation_data):
-    actor_constellation_result = carla.RssActorConstellationResult()
-    actor_constellation_result.rss_calculation_mode = ad.rss.map.RssMode.NotRelevant
-    actor_constellation_result.restrict_speed_limit_mode = ad.rss.map.RssSceneCreation.RestrictSpeedLimitMode.IncreasedSpeedLimit10
-    actor_constellation_result.ego_vehicle_dynamics = self.current_vehicle_parameters
-    actor_constellation_result.actor_object_type = ad.rss.world.ObjectType.Invalid
-    actor_constellation_result.actor_dynamics = self.current_vehicle_parameters
-
-    actor_id = -1
-    actor_type_id = "none"
-    if actor_constellation_data.other_actor != None:
-        # customize actor_constellation_result for specific actor
-        ...
-    else:
-        # default
-        ...
-    return actor_constellation_result
-```
 
 
 ---
@@ -716,77 +381,3 @@ The following tags are currently available:
 | `lens_kcube` | float        | 0\.0         | Range: [-inf, inf]       |
 | `lens_x_size`            | float        | 0\.08        | Range: [0.0, 1.0]        |
 | `lens_y_size`            | float        | 0\.08        | Range: [0.0, 1.0]        |
-
-
-
----
-
-#### Output attributes
-
-| Sensor data attribute            | Type  | Description        |
-| ----------------------- | ----------------------- | ----------------------- |
-| `fov` | float | Horizontal field of view in degrees.         |
-| `frame`            | int   | Frame number when the measurement took place.      |
-| `height`           | int   | Image height in pixels.          |
-| `raw_data`         | bytes | Array of BGRA 32-bit pixels.     |
-| `timestamp`        | double | Simulation time of the measurement in seconds since the beginning of the episode.        |
-| `transform`        | [carla.Transform](<../python_api#carlatransform>)  | Location and rotation in world coordinates of the sensor at the time of the measurement. |
-| `width`            | int   | Image width in pixels.           |
-
-
-
----
-
-## DVS camera
-
-*   __Blueprint:__ sensor.camera.dvs
-*   __Output:__ [carla.DVSEventArray](python_api.md#carla.DVSEventArray) per step (unless `sensor_tick` says otherwise).
-
-
-A Dynamic Vision Sensor (DVS) or Event camera is a sensor that works radically differently from a conventional camera. Instead of capturing
-intensity images at a fixed rate, event cameras measure changes of intensity asynchronously, in the form of a stream of events, which encode per-pixel
-brightness changes. Event cameras possess outstanding properties when compared to standard cameras. They have a very high dynamic range (140 dB
-versus 60 dB), no motion blur, and high temporal resolution (in the order of microseconds). Event cameras are thus sensors that can provide high-quality
-visual information even in challenging high-speed scenarios and high dynamic range environments, enabling new application domains for vision-based
-algorithms.
-
-The DVS camera outputs a stream of events. An event `e=(x,y,t,pol)` is triggered at a pixel `x`, `y` at a timestamp `t` when the change in
-logarithmic intensity `L` reaches a predefined constant threshold `C` (typically between 15% and 30%).
-
-``
-L(x,y,t) - L(x,y,t-\delta t) = pol C
-``
-
-`t-\delta t` is the time when the last event at that pixel was triggered and `pol` is the polarity of the event according to the sign of the
-brightness change. The polarity is positive `+1` when there is increment in brightness and negative `-1` when a decrement in brightness occurs. The
-working principles depicted in the following figure. The standard camera outputs frames at a fixed rate, thus sending redundant information
-when no motion is present in the scene. In contrast, event cameras are data-driven sensors that respond to brightness changes with microsecond
-latency. At the plot, a positive (resp. negative) event (blue dot, resp. red dot) is generated whenever the (signed) brightness change exceeds the
-contrast threshold `C` for one dimension `x` over time `t`. Observe how the event rate grows when the signal changes rapidly.
-
-![DVSCameraWorkingPrinciple](img/sensor_dvs_scheme.jpg)
-
-The current implementation of the DVS camera works in a uniform sampling manner between two consecutive synchronous frames. Therefore, in order to
-emulate the high temporal resolution (order of microseconds) of a real event camera, the sensor requires to execute at a high frequency (much higher
-frequency than a conventional camera). Effectively, the number of events increases as faster a CARLA car drives. Therefore, the sensor frequency
-should increase accordingly with the dynamic of the scene. The user should find their balance between time accuracy and computational cost.
-
-The provided script `manual_control.py` uses the DVS camera in order to show how to configure the sensor, how to get the stream of events and how to depict such events in an image format, usually called event frame.
-
-![DVSCameraWorkingPrinciple](img/sensor_dvs.gif)
-
-DVS is a camera and therefore has all the attributes available in the RGB camera. Nevertheless, there are few attributes exclusive to the working principle of an Event camera.
-
-#### DVS camera attributes
-
-| Blueprint attribute    | Type    | Default  | Description          |
-| ---------------------- | ---------------------- | ---------------------- | ---------------------- |
-| `positive_threshold`   | float   | 0\.3    | Positive threshold C associated to a increment in brightness change (0-1).     |
-| `negative_threshold`   | float   | 0\.3    | Negative threshold C associated to a decrement in brightness change (0-1).     |
-| `sigma_positive_threshold`         | float   | 0       | White noise standard deviation for positive events (0-1).        |
-| `sigma_negative_threshold`         | float   | 0       | White noise standard deviation for negative events (0-1).        |
-| `refractory_period_ns`             | int     | 0\.0    | Refractory period (time during which a pixel cannot fire events just after it fired one), in nanoseconds. It limits the highest frequency of triggering events.   |
-| `use_log`            | bool    | true    | Whether to work in the logarithmic intensity scale.  |
-| `log_eps`            | float   | 0\.001  | Epsilon value used to convert images to log: `L = log(eps + I / 255.0)`.<br>  Where `I` is the grayscale value of the RGB image: <br>`I = 0.2989*R + 0.5870*G + 0.1140*B`. |
-
-<br>
